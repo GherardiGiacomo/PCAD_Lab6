@@ -12,7 +12,7 @@ class polonord {
     private final Semaphore elfiSem = new Semaphore(0);
     private final Semaphore mutex = new Semaphore(1);
     private final Semaphore elfiMutex = new Semaphore(1);
-    private final Semaphore babboNataleRitornoSem = new Semaphore(numElfi); // Nuovo semaforo
+    private final Semaphore babboNataleRitornoSem = new Semaphore(numElfi);
 
     public static void main(String[] args) {
         polonord problem = new polonord();
@@ -43,10 +43,10 @@ class polonord {
         public void run() {
             try {
                 while (true) {
-                    babboNataleRitornoSem.acquire(); // Aggiunto qui
+                    babboNataleRitornoSem.acquire();
                     System.out.println("L'elfo " + id + " sta cercando di costruire un giocattolo.");
                     Thread.sleep(2000);
-                    if (random.nextInt(10) < 3) { // 30% di probabilità che l'elfo non riesca a costruire un giocattolo
+                    if (random.nextInt(10) < 3) { // questo vuol dire che un elfo ha un 30% di probabilità di fallire
                         System.out.println("L'elfo " + id + " non è riuscito a costruire un giocattolo e ha bisogno di aiuto da Babbo Natale.");
                         elfiMutex.acquire();
                         try {
