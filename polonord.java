@@ -1,8 +1,9 @@
 import java.util.concurrent.Semaphore;
+import java.util.Random;
 
 class polonord {
     private static final int numRenne = 9;
-    private static final int numElfi = 5;
+    private static final int numElfi = 4;
 
     private int renneCount = 0;
     private int elfiCount = 0;
@@ -11,6 +12,7 @@ class polonord {
     private final Semaphore elfiSem = new Semaphore(0);
     private final Semaphore mutex = new Semaphore(1);
     private final Semaphore elfiMutex = new Semaphore(1);
+    private final Semaphore babboNataleRitornoSem = new Semaphore(numElfi); // Nuovo semaforo
 
     public static void main(String[] args) {
         polonord problem = new polonord();
@@ -29,6 +31,49 @@ class polonord {
         }
     }
 
+    class Elfo implements Runnable {
+        private final int id;
+        private final Random random = new Random();
+
+        Elfo(int id) {
+            this.id = id;
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (true) {
+                    babboNataleRitornoSem.acquire(); // Aggiunto qui
+                    System.out.println("L'elfo " + id + " sta cercando di costruire un giocattolo.");
+                    Thread.sleep(2000);
+                    if (random.nextInt(10) < 3) { // 30% di probabilità che l'elfo non riesca a costruire un giocattolo
+                        System.out.println("L'elfo " + id + " non è riuscito a costruire un giocattolo e ha bisogno di aiuto da Babbo Natale.");
+                        elfiMutex.acquire();
+                        try {
+                            elfiCount++;
+                            if (elfiCount == 3) {
+                                babboNataleSem.release();
+                            } else {
+                                elfiMutex.release();
+                            }
+                        } finally {
+                            if (elfiCount == 3) {
+                                elfiSem.acquire(3);
+                                elfiMutex.release();
+                            }
+                        }
+                        System.out.println("L'elfo " + id + " sta ricevendo aiuto da Babbo Natale.");
+                        Thread.sleep(1000);
+                    } else {
+                        System.out.println("L'elfo " + id + " è riuscito a costruire un giocattolo.");
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     class BabboNatale implements Runnable {
         @Override
         public void run() {
@@ -38,15 +83,13 @@ class polonord {
                     mutex.acquire();
                     try {
                         if (renneCount == numRenne) {
-                            if (elfiCount == 3) {
-                                System.out.println("Babbo Natale decide di aiutare le renne invece degli elfi."); //boh
-                            }
                             preparaSlitta();
                             consegnaRegali();
                             renneSem.release(numRenne);
                             renneCount = 0;
+                            babboNataleRitornoSem.release(numElfi);
                         } else if (elfiCount == 3) {
-                            aiutaElfi();
+                            //aiutaElfi();
                             elfiSem.release(3);
                             elfiCount = 0;
                         }
@@ -60,31 +103,21 @@ class polonord {
         }
 
         private void preparaSlitta() {
-            System.out.println("Preparazione della slitta...");
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            System.out.println("\nPreparazione della slitta...");
         }
 
         private void consegnaRegali() {
             System.out.println("Babbo Natale sta consegnando i regali...");
             try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.out.println("Babbo Natale è tornato.");
-        }
-
-        private void aiutaElfi() {
-            System.out.println("Babbo Natale sta aiutando gli elfi!");
-            try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            System.out.println("Babbo Natale è tornato.\n");
+        }
+
+        private void aiutaElfi() {
+            System.out.println("Babbo Natale sta aiutando gli elfi!\n");
         }
     }
 
@@ -99,7 +132,7 @@ class polonord {
         public void run() {
             try {
                 while (true) {
-                    Thread.sleep((int) (Math.random() * 5000));
+                    Thread.sleep(10000);
                     mutex.acquire();
                     try {
                         renneCount++;
@@ -110,77 +143,7 @@ class polonord {
                         mutex.release();
                     }
                     renneSem.acquire();
-                    rennaAspetta();
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        private void rennaAspetta() {
-            System.out.println("La renna " + id + " sta aspettando"); //boh
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    class Elfo implements Runnable {
-        private final int id;
-
-        Elfo(int id) {
-            this.id = id;
-        }
-
-        @Override
-        public void run() {
-            try {
-                while (true) {
-                    costruisceGiocattolo();
-                    elfiMutex.acquire();
-                    mutex.acquire();
-                    try {
-                        elfiCount++;
-                        if (elfiCount == 3) {
-                            babboNataleSem.release();
-                        } else {
-                            elfiMutex.release();
-                        }
-                    } finally {
-                        mutex.release();
-                    }
-                    elfiSem.acquire();
-                    aiuto();
-                    mutex.acquire();
-                    try {
-                        elfiCount--;
-                        if (elfiCount == 0) {
-                            elfiMutex.release();
-                        }
-                    } finally {
-                        mutex.release();
-                    }
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        private void costruisceGiocattolo() {
-            System.out.println("L'elfo " + id + " sta costruendo un giocattolo.");
-            try {
-                Thread.sleep((int) (Math.random() * 3000));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        private void aiuto() {
-            System.out.println("L'elfo " + id + " sta ricevendo aiuto da Babbo Natale.");
-            try {
-                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
