@@ -46,7 +46,7 @@ class polonord {
                     babboNataleRitornoSem.acquire();
                     System.out.println("L'elfo " + id + " sta cercando di costruire un giocattolo.");
                     Thread.sleep(2000);
-                    if (random.nextInt(10) < 3) { // questo vuol dire che un elfo ha un 30% di probabilità di fallire
+                    if (random.nextInt(10) < 3) { // questo vuol dire che un elfo ha un 30% di probabilità di fallire, credo ci stia
                         System.out.println("L'elfo " + id + " non è riuscito a costruire un giocattolo e ha bisogno di aiuto da Babbo Natale.");
                         elfiMutex.acquire();
                         try {
@@ -127,9 +127,9 @@ class polonord {
         public void run() {
             try {
                 while (true) {
-                    System.out.println("La renna " + id + " è in vacanza."); // Aggiunto qui
+                    System.out.println("La renna " + id + " è in vacanza.");
                     Thread.sleep(10000);
-                    System.out.println("La renna " + id + " sta andando da Babbo Natale."); // Aggiunto qui
+                    System.out.println("La renna " + id + " sta andando da Babbo Natale.");
                     mutex.acquire();
                     try {
                         renneCount++;
@@ -140,7 +140,7 @@ class polonord {
                         mutex.release();
                     }
                     renneSem.acquire();
-                    System.out.println("La renna " + id + " ha finito la distribuzione dei regali e sta tornando in vacanza."); // Aggiunto qui
+                    System.out.println("La renna " + id + " ha finito la distribuzione dei regali e sta tornando in vacanza.");
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
