@@ -127,7 +127,6 @@ class polonord {
         public void run() {
             try {
                 while (true) {
-                    System.out.println("La renna " + id + " è in vacanza.");
                     Thread.sleep(10000);
                     System.out.println("La renna " + id + " sta andando da Babbo Natale.");
                     mutex.acquire();
