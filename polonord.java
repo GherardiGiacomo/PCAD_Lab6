@@ -89,7 +89,6 @@ class polonord {
                             renneCount = 0;
                             babboNataleRitornoSem.release(numElfi);
                         } else if (elfiCount == 3) {
-                            //aiutaElfi();
                             elfiSem.release(3);
                             elfiCount = 0;
                         }
@@ -115,10 +114,6 @@ class polonord {
             }
             System.out.println("Babbo Natale è tornato.\n");
         }
-
-        private void aiutaElfi() {
-            System.out.println("Babbo Natale sta aiutando gli elfi!\n");
-        }
     }
 
     class Renna implements Runnable {
@@ -132,7 +127,9 @@ class polonord {
         public void run() {
             try {
                 while (true) {
+                    System.out.println("La renna " + id + " è in vacanza."); // Aggiunto qui
                     Thread.sleep(10000);
+                    System.out.println("La renna " + id + " sta andando da Babbo Natale."); // Aggiunto qui
                     mutex.acquire();
                     try {
                         renneCount++;
@@ -143,6 +140,7 @@ class polonord {
                         mutex.release();
                     }
                     renneSem.acquire();
+                    System.out.println("La renna " + id + " ha finito la distribuzione dei regali e sta tornando in vacanza."); // Aggiunto qui
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
