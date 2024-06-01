@@ -64,6 +64,7 @@ class polonord {
                         }
                         System.out.println("L'elfo " + id + " sta ricevendo aiuto da Babbo Natale.");
                         Thread.sleep(1000);
+                        System.out.println("L'elfo " + id + " è riuscito grazie a Babbo Natale a costruire un giocattolo.");
                     } else {
                         System.out.println("L'elfo " + id + " è riuscito a costruire un giocattolo.");
                     }
